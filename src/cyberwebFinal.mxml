@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"  creationComplete="application1_creationCompleteHandler(event)" addedToStage="application1_addedToStageHandler(event)"  backgroundColor="#000000">
+	<fx:Script>
+		<![CDATA[
+			import com.greensock.events.LoaderEvent;
+			import com.greensock.loading.LoaderMax;
+			import com.greensock.loading.VideoLoader;
+			
+			import flash.display.Bitmap;
+			import flash.display.BitmapData;
+			import flash.display.Sprite;
+			import flash.display.StageAlign;
+			import flash.display.StageQuality;
+			import flash.display.StageScaleMode;
+
+			
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			
+			import away3d.cameras.HoverCamera3D;
+			import away3d.containers.View3D;
+			import away3d.core.render.Renderer;
+			import away3d.materials.VideoMaterial;
+			
+			
+			private var videoTexture:VideoMaterial;
+			private var _view:View3D;
+			public var _camera:HoverCamera3D;
+			public var CajaNormalInstancia:CajaNormalVideo;
+			public var RenderVideo:BitmapData;
+			public var Auximage:Bitmap;
+			public var Auximage3:Bitmap;
+			public var Auximage2:BitmapData;
+			private var contador:int=0;
+			[Bindable]
+			private var stageW:int;
+			[Bindable]
+			private var stageH:int;
+			
+			private var loader:URLLoader;
+			
+			private var bytearray:ByteArray;
+			private var ns:NetStream;
+			private var nc:NetConnection;
+			private var preloader1:LoaderMax;
+			
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				/*
+				loader= new URLLoader(new URLRequest("assets/Maquina.flv"));
+				loader.dataFormat= URLLoaderDataFormat.BINARY;
+				
+				
+				loader.addEventListener(Event.OPEN,onAbre);
+				loader.addEventListener(ProgressEvent.PROGRESS,onProgreso);
+				loader.addEventListener(Event.COMPLETE,onCompleto);
+				loader.addEventListener(IOErrorEvent.IO_ERROR,onError);
+				*/
+				
+				preloader1 = new LoaderMax( { 
+					name:"que1",
+					maxConnections:5,
+					auditSize:true,
+					onProgress:preloaderProgressHandler,
+					onError:preloaderErrorHandler,
+					onComplete:preloaderCompleteHandler
+				} );
+				
+				preloader1.append( new VideoLoader("assets/Absolution.mp4",{ name:"video",estimatedBytes:(9574*1024), autoPlay:false } ));
+				preloader1.load();
+				
+				
+			}
+			
+			// ---------------------------------------------------------------------------------------------------------------------------
+			private function preloaderProgressHandler(e:LoaderEvent):void
+			{
+				texto.text="Loading Please Wait......:   "+String(Math.round(e.target.progress * 100))+" % by saul romero Soulqubit";
+			}
+			// ---------------------------------------------------------------------------------------------------------------------------
+			
+			
+			
+			
+			// ---------------------------------------------------------------------------------------------------------------------------
+			private function preloaderErrorHandler(e:LoaderEvent):void
+			{
+				
+			}
+			// ---------------------------------------------------------------------------------------------------------------------------
+			
+			
+			
+			// ---------------------------------------------------------------------------------------------------------------------------
+			private function preloaderCompleteHandler(e:LoaderEvent):void
+			{
+				init3D();
+			}
+			// ---------------------------------------------------------------------------------------------------------------------------
+			
+			
+			protected function application1_addedToStageHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				// support autoOrients
+				stage.align = StageAlign.TOP_LEFT;
+				stage.scaleMode = StageScaleMode.NO_SCALE;
+				stage.quality = StageQuality.HIGH;
+				
+				this.stageW=stage.stageWidth;
+				this.stageH=stage.stageHeight;
+				
+				// TODO Auto-generated method stub
+				
+			}
+			
+			
+			
+			
+			private function init3D():void {
+				_camera = new HoverCamera3D();
+				_camera.mintiltangle = 15;
+				_camera.maxtiltangle = 65;
+				_camera.mouseEnabled=true;
+				
+				_view = new View3D({width:800, height:600, x:400, y:400, camera:_camera});
+				_view.renderer = Renderer.CORRECT_Z_ORDER;
+				main.addChild(_view);
+				
+				
+				
+				
+				
+				CajaNormalInstancia= new CajaNormalVideo();
+				
+				CajaNormalInstancia.initVideo("assets/Absolution.mp4");	
+				CajaNormalInstancia.initPrevioVideo(CajaNormalVideo.size/2,CajaNormalVideo.size/2);
+				
+				_view.scene.addChild(CajaNormalInstancia.getPrevioVideo());
+				
+				
+				addEventListener(Event.ENTER_FRAME, enterFrameHandler);
+			}
+			
+			
+			
+			private function onError(e:ErrorEvent):void{
+				
+				trace(e.text);
+				
+				
+				
+			}
+			
+			private function onAbre(e:Event):void{
+				
+				trace("iniciar descarga");
+				
+				
+				
+			}
+			
+			
+			private function onProgreso(e:ProgressEvent):void{
+				
+				var porcentaje:Number=e.bytesLoaded/e.bytesTotal*100;
+				trace(porcentaje);
+				
+				
+			}
+			
+			
+			private function onCompleto(e:Event):void{
+				
+				trace("carga completada");
+				bytearray new ByteArray();
+				
+				bytearray=loader.data;
+				
+				
+				
+				/*
+				
+				
+				nc = new  NetConnection();
+				nc.addEventListener(NetStatusEvent.NET_STATUS,NeststatusConectionHandeler);
+				nc.connect(null);
+				var ns:NetStream = new NetStream(nc);
+				ns.client= {};
+				ns.play(null);
+				ns.appendBytes(bytearray);
+				
+				
+				var vid:Video= new Video();
+				vid.attachNetStream(ns);
+				var aux:UIComponent= new UIComponent();
+				aux.addChild(vid);
+				addElement(aux);
+				//bytearray=loader.data;
+				//trace(bytearray.length)
+				*/
+				
+			}
+			
+			private function onMetaData(infoObject:Object):void{
+				var key:String;
+				for(key in infoObject)trace(key+" :"+infoObject[key]);
+				
+			}
+			private function onCuePoint(infoObject:Object):void{}
+			
+			
+			private function NeststatusConectionHandeler(ev:NetStatusEvent):void{
+				
+				trace(ev.info.code);
+				
+				switch(ev.info.code)
+				{
+					
+					case 'NetConnection.Connect.Success' :
+						
+						
+						ns= new NetStream(nc);
+						ns.client= {};
+						var vid:Video= new Video();
+						vid.attachNetStream(ns);
+						ns.play(null);
+						ns.appendBytes(bytearray);
+						
+						
+						//CajaNormalInstancia= new CajaNormalVideo();
+						
+						//CajaNormalInstancia.initVideo(vid);	
+						//CajaNormalInstancia.initPrevioVideo(CajaNormalVideo.size/2,CajaNormalVideo.size/2);
+						
+						//_view.scene.addChild(CajaNormalInstancia.getPrevioVideo());
+						
+						var aux:UIComponent= new UIComponent();
+						aux.addChild(vid);
+						//addElement(aux);
+						
+						
+						var jpgSource:BitmapData = new BitmapData (100, 100); 
+						jpgSource.draw(aux); 
+						
+						break;
+					
+					
+				}
+				
+				
+				
+			}
+			
+			// EnterFrameHandler is responsible for
+			// 1. camera controls
+			// 2. rendering the 3D view
+			private function enterFrameHandler(e:Event):void {
+				
+				
+				
+				if(CajaNormalInstancia.getVideo().bitmap){
+					
+					if( contador==0){
+						RenderVideo = new BitmapData(CajaNormalInstancia.getVideo().bitmap.width,CajaNormalInstancia.getVideo().bitmap.height);
+						Auximage2  = new BitmapData(CajaNormalInstancia.getVideo().bitmap.width,CajaNormalInstancia.getVideo().bitmap.height);
+						CajaNormalInstancia.SlidingPuzzle(RenderVideo);
+						Auximage= new Bitmap(RenderVideo);
+						_view.scene.addChild(CajaNormalInstancia._gameBoard);
+						
+						trace("añadido " + "w:"+CajaNormalInstancia.getVideo().bitmap.width +"h"+CajaNormalInstancia.getVideo().bitmap.height)
+						
+						
+						contador ++;
+						
+					}
+					
+					
+					RenderVideo.draw(CajaNormalInstancia.getVideo().bitmap);
+					
+					if(CajaNormalInstancia._gameBoard)
+						CajaNormalInstancia.createPuzzleRender(CajaNormalInstancia.sliceImageRender(Auximage.bitmapData));
+					
+				}
+				
+				
+				//CajaNormalInstancia
+				//.rotationY += 0.5;
+				
+				_camera.targetpanangle = (stage.stageWidth * .5 - stage.mouseX) * .1 - 180;
+				_camera.targettiltangle = (stage.stageHeight * .5 - stage.mouseY) * .5;
+				
+				_camera.hover();
+				_view.render();
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Label id="texto" color="#ffffff"  fontSize="50">
+		
+	</s:Label>
+	<s:SpriteVisualElement id="main">
+		
+	</s:SpriteVisualElement>
+</s:Application>
